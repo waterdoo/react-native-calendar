@@ -36,7 +36,8 @@ let Calendar = React.createClass({
     onTouchPrev: PropTypes.func,
     eventDates: PropTypes.array,
     startDate: PropTypes.string,
-    selectedDate: PropTypes.string,
+    selectedStartDate: PropTypes.string,
+    selectedEndDate: PropTypes.string,
     customStyle: PropTypes.object,
   },
 
@@ -55,7 +56,8 @@ let Calendar = React.createClass({
   getInitialState() {
     return {
       calendarDates: this.getInitialStack(),
-      selectedDate: moment(this.props.selectedDate).format(),
+      selectedStartDate: moment(this.props.selectedStartDate).format(),
+      selectedEndDate: moment(this.props.selectedEndDate).format(),
       currentMonth: moment(this.props.startDate).format()
     };
   },
@@ -77,7 +79,6 @@ let Calendar = React.createClass({
       moment(this.props.startDate).add(2, 'month').format()
     ])
   },
-
 
   renderTopBar(date) {
     if(this.props.showControls) {
@@ -129,7 +130,7 @@ let Calendar = React.createClass({
           if(currentDay < daysInMonth) {
             var newDay = moment(dayStart).set('date', currentDay + 1);
             var isToday = (moment().isSame(newDay, 'month') && moment().isSame(newDay, 'day')) ? true : false;
-            var isSelected = (moment(this.state.selectedDate).isSame(newDay, 'month') && moment(this.state.selectedDate).isSame(newDay, 'day')) ? true : false;
+            var isSelected = this._isDateHighlighted(newDay);
             var hasEvent = false;
             if (this.props.eventDates) {
               for (var x = 0; x < this.props.eventDates.length; x++) {
@@ -181,6 +182,15 @@ let Calendar = React.createClass({
     return renderedMonthView;
   },
 
+  _isDateHighlighted(day) {
+    return this._isSelectedDate(day, this.state.selectedStartDate) ||
+           this._isSelectedDate(day, this.state.selectedEndDate);
+  },
+
+  _isSelectedDate(day, date) {
+    return (moment(date).isSame(day, 'month') && moment(date).isSame(day, 'day')) ? true : false;
+  },
+
   _dayCircleStyle(newDay, isSelected, isToday) {
     var dayCircleStyle = [this.styles.dayCircleFiller];
     if (isSelected && !isToday) {
@@ -224,9 +234,27 @@ let Calendar = React.createClass({
   },
 
   _selectDate(date) {
-    this.setState({
-      selectedDate: date,
-    });
+    var areBothDatesTheSame = moment(this.state.selectedStartDate).isSame(this.state.selectedEndDate);
+    var areBothDatesSelected = !!(this.state.selectedStartDate && this.state.selectedEndDate);
+    if (areBothDatesTheSame || areBothDatesSelected) {
+      this.setState({
+        selectedStartDate: date,
+        selectedEndDate: null
+      });
+    } else {
+      var isEarlierThanStartDate = moment(date).isBefore(this.state.selectedStartDate);
+      if (isEarlierThanStartDate) {
+        this.setState({
+          selectedStartDate: date,
+          selectedEndDate: this.state.selectedStartDate
+        });
+      } else {
+        this.setState({
+          selectedEndDate: date
+        });
+      }
+    }
+
     this.props.onDateSelect && this.props.onDateSelect(date.format());
   },
 
