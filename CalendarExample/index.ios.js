@@ -31,12 +31,13 @@ var CalendarExample = React.createClass({
           titleFormat={'MMMM YYYY'}
           prevButtonText={'Prev'}
           nextButtonText={'Next'}
-          onDateSelect={(date) => this.setState({selectedDate: date})}
+          onDateSelect={(selectedStartDate, selectedEndDate) => this.setState({selectedStartDate: selectedStartDate, selectedEndDate: selectedEndDate})}
           onTouchPrev={() => console.log('Back TOUCH')}
           onTouchNext={() => console.log('Forward TOUCH')}
           onSwipePrev={() => console.log('Back SWIPE')}
           onSwipeNext={() => console.log('Forward SWIPE')}/>
-        <Text>Selected Date: {moment(this.state.selectedDate).format('MMMM DD YYYY')}</Text>
+        <Text>Selected Start Date: {moment(this.state.selectedStartDate).format('MMMM DD YYYY')}</Text>
+        <Text>Selected End Date: {moment(this.state.selectedEndDate).format('MMMM DD YYYY')}</Text>
       </View>
 
     );
