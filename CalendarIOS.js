@@ -236,26 +236,28 @@ let Calendar = React.createClass({
   _selectDate(date) {
     var areBothDatesTheSame = moment(this.state.selectedStartDate).isSame(this.state.selectedEndDate);
     var areBothDatesSelected = !!(this.state.selectedStartDate && this.state.selectedEndDate);
+    var selectedStartDate = this.state.selectedStartDate;
+    var selectedEndDate = this.state.selectedEndDate;
+
     if (areBothDatesTheSame || areBothDatesSelected) {
-      this.setState({
-        selectedStartDate: date,
-        selectedEndDate: null
-      });
+        selectedStartDate = date;
+        selectedEndDate = null;
     } else {
       var isEarlierThanStartDate = moment(date).isBefore(this.state.selectedStartDate);
       if (isEarlierThanStartDate) {
-        this.setState({
-          selectedStartDate: date,
-          selectedEndDate: this.state.selectedStartDate
-        });
+          selectedStartDate = date;
+          selectedEndDate = this.state.selectedStartDate;
       } else {
-        this.setState({
-          selectedEndDate: date
-        });
+          selectedEndDate = date;
       }
     }
 
-    this.props.onDateSelect && this.props.onDateSelect(date.format());
+    this.setState({
+      selectedStartDate: selectedStartDate,
+      selectedEndDate: selectedEndDate
+    });
+
+    this.props.onDateSelect && this.props.onDateSelect(selectedStartDate, selectedEndDate);
   },
 
   _onPrev(){
